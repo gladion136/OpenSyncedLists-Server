@@ -1,14 +1,11 @@
 /**
- * Sensorverwaltung Backend
+ * OpenSyncedLists Backend
  */
-
 import cors from "cors";
 import express from "express";
 import path from "path";
 import { listRouter } from "./route/list";
 import { MongoDBGateway } from "./util/storage/mongodb-gateway";
-
-const DEBUG = true;
 
 const app = express();
 const port = 3000;
@@ -20,29 +17,30 @@ app.use(express.json());
  */
 export const db = new MongoDBGateway();
 const initDB = async () => {
-    // tslint:disable-next-line:no-console
-    console.log("open DB");
+    console.log("Open DB");
     await db.open_DB();
-    // tslint:disable-next-line:no-console
     console.log("Initilize DB");
-    // tslint:disable-next-line:no-console
     console.log(await db.init_DB());
 };
-initDB();
-/**
- * Handle routes
- */
-app.get("/test", (req, res) => {
-    res.send('{"status":"OK"}');
-});
+initDB()
+    .then(() => {
+        /**
+         * Handle routes and start server
+         */
+        app.get("/test", (req, res) => {
+            res.send('{"status":"OK"}');
+        });
 
-app.use("/list", listRouter);
+        app.use("/list", listRouter);
 
-app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "/html/index.html"));
-});
+        app.get("/", (req, res) => {
+            res.sendFile(path.join(__dirname, "/html/index.html"));
+        });
 
-app.listen(port, () => {
-    // tslint:disable-next-line:no-console
-    return console.log(`server is listening on ${port}`);
-});
+        app.listen(port, () => {
+            return console.log(`server is listening on ${port}`);
+        });
+    })
+    .catch((err) => {
+        console.log("Can't initilize DB: " + String(err));
+    });

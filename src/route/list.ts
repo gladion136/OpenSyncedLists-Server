@@ -1,5 +1,5 @@
 /**
- * API für die Settings
+ * API for a list
  */
 import * as express from "express";
 import path from "path";
@@ -8,17 +8,24 @@ import { IList } from "../util/structures/list";
 
 export const listRouter = express.Router();
 
+/** Test path */
 listRouter.get("/test", (req, res) => {
-    res.send('{"status":"OK"}');
+    res.send({
+        status: "OK",
+    });
 });
 
+/** Path to get a list */
 listRouter.get("/get", async (req, res) => {
     if (
         req.query == null ||
         req.query.id === undefined ||
         req.query.secret === undefined
     ) {
-        res.send('{"status":"ERROR", "msg":"Wrong parameters"}');
+        res.send({
+            msg: "Wrong parameters",
+            status: "ERROR",
+        });
         return;
     } else {
         res.send(
@@ -40,6 +47,7 @@ listRouter.get("/get", async (req, res) => {
     }
 });
 
+/** Path to override a list (if hash is equal with list inside db) */
 listRouter.post("/set", async (req, res) => {
     if (
         req.query == null ||
@@ -50,7 +58,10 @@ listRouter.post("/set", async (req, res) => {
         req.body.basedOnHash === undefined ||
         req.body.hash === undefined
     ) {
-        res.send('{"status":"ERROR", "msg":"Wrong parameters"}');
+        res.send({
+            msg: "Wrong parameters",
+            status: "ERROR",
+        });
         return;
     }
 
@@ -78,6 +89,7 @@ listRouter.post("/set", async (req, res) => {
     }
 });
 
+/** Path to add a new list */
 listRouter.post("/add", async (req, res) => {
     if (
         req.query == null ||
@@ -87,7 +99,10 @@ listRouter.post("/add", async (req, res) => {
         req.body.data === undefined ||
         req.body.hash === undefined
     ) {
-        res.send('{"status":"ERROR", "msg":"Wrong parameters"}');
+        res.send({
+            msg: "Wrong parameters",
+            status: "ERROR",
+        });
         return;
     } else {
         const list: IList = {
@@ -115,13 +130,17 @@ listRouter.post("/add", async (req, res) => {
     }
 });
 
+/** Path to remove a list */
 listRouter.get("/remove", async (req, res) => {
     if (
         req.query == null ||
         req.query.id === undefined ||
         req.query.secret === undefined
     ) {
-        res.send('{"status":"ERROR", "msg":"Wrong parameters"}');
+        res.send({
+            msg: "Wrong parameters",
+            status: "ERROR",
+        });
         return;
     } else {
         res.send(
@@ -143,6 +162,10 @@ listRouter.get("/remove", async (req, res) => {
     }
 });
 
+/**
+ * Path if someone dont installed the app, but opened a SyncedList link.
+ * (Link to PlayStore)
+ */
 listRouter.get("/share", (req, res) => {
     res.sendFile(path.join(__dirname, "../html/share.html"));
 });

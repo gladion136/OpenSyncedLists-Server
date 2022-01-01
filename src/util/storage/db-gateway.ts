@@ -22,9 +22,10 @@ export interface IDBGateway {
     add_list(list: IList);
 
     /**
-     * Set list in db (same id)
+     * Set/override list in db (same id)
      *
      * @param list List
+     * @param oldHash hash inside db (if not equal an error occurs)
      */
     set_list(list: IList, oldHash: string);
 

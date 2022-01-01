@@ -1,25 +1,29 @@
 import { MongoClient } from "mongodb";
-import { rejects, strict } from "node:assert";
 import { IList } from "../structures/list";
 import { IDBGateway } from "./db-gateway";
 
 /**
- * Verbindung zu einer MongoDB Datenbank
+ * Connection to MongoDB
  */
 export class MongoDBGateway implements IDBGateway {
     public url = "mongodb://database:27017";
     public client;
 
+    /** Return this Promies if db is not initlized */
     public errorPromise = new Promise(async (resolve, reject) => {
-        resolve("DB error");
+        resolve("DB error, open db connection first!");
     });
 
-    public async;
-
+    /**
+     * Open db connection
+     */
     public async open_DB() {
         this.client = await MongoClient.connect(this.url);
     }
 
+    /**
+     * Initilize db (Create collections)
+     */
     public async init_DB() {
         let callback = "";
 
@@ -42,12 +46,16 @@ export class MongoDBGateway implements IDBGateway {
         return callback;
     }
 
+    /**
+     * Add list to db
+     *
+     * @param list List
+     */
     public async add_list(list: IList) {
         if (this.client === undefined) {
             return this.errorPromise;
         }
-        // tslint:disable-next-line:no-console
-        console.log("Add:" + list.id);
+        console.log("Add list:" + list.id);
         const dbo = this.client.db("mydb");
         const query = { id: list.id, secret: list.secret };
         return new Promise(async (resolve, reject) => {
@@ -55,8 +63,6 @@ export class MongoDBGateway implements IDBGateway {
                 .find(query)
                 .toArray((error, result) => {
                     if (error || result.length <= 0) {
-                        // tslint:disable-next-line:no-console
-                        console.log("List: " + list.id);
                         dbo.collection("lists").insertOne(list, (err, res) => {
                             if (err) {
                                 reject(
@@ -73,6 +79,12 @@ export class MongoDBGateway implements IDBGateway {
         });
     }
 
+    /**
+     * Set/override list in db (same id)
+     *
+     * @param list List
+     * @param oldHash hash inside db (if not equal an error occurs)
+     */
     public async set_list(list: IList, oldHash: string) {
         if (this.client === undefined) {
             return this.errorPromise;
@@ -92,6 +104,12 @@ export class MongoDBGateway implements IDBGateway {
         });
     }
 
+    /**
+     * Get list from db
+     *
+     * @param id listId
+     * @param secret secret (HASH)
+     */
     public async get_list(id: string, secret: string) {
         if (this.client === undefined) {
             return this.errorPromise;
@@ -115,6 +133,12 @@ export class MongoDBGateway implements IDBGateway {
         });
     }
 
+    /**
+     * Delete list from db
+     *
+     * @param id listId
+     * @param secret secret (HASH)
+     */
     public async delete_list(id: string, secret: string) {
         if (this.client === undefined) {
             return this.errorPromise;
