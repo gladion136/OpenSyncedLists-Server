@@ -8,7 +8,7 @@ import { listRouter } from "./route/list";
 import { MongoDBGateway } from "./util/storage/mongodb-gateway";
 
 const app = express();
-const port = 3000;
+const port = 3300;
 app.use(cors());
 app.use(express.json());
 
@@ -22,25 +22,32 @@ const initDB = async () => {
     console.log("Initilize DB");
     console.log(await db.init_DB());
 };
-initDB()
-    .then(() => {
-        /**
-         * Handle routes and start server
-         */
-        app.get("/test", (req, res) => {
-            res.send('{"status":"OK"}');
-        });
 
-        app.use("/list", listRouter);
+/**
+ * Handle routes and start server
+ */
+const startServer = () => {
+    initDB()
+        .then(() => {
+            app.get("/test", (req, res) => {
+                res.send('{"status":"OK"}');
+            });
 
-        app.get("/", (req, res) => {
-            res.sendFile(path.join(__dirname, "/html/index.html"));
-        });
+            app.use("/list", listRouter);
 
-        app.listen(port, () => {
-            return console.log(`server is listening on ${port}`);
+            app.get("/", (req, res) => {
+                res.sendFile(path.join(__dirname, "/html/index.html"));
+            });
+
+            app.listen(port, () => {
+                return console.log(`server is listening on ${port}`);
+            });
+        })
+        .catch((err) => {
+            console.log("Can't initilize DB: " + String(err));
+            console.log("Retry in 1s");
+            setTimeout(startServer, 1);
         });
-    })
-    .catch((err) => {
-        console.log("Can't initilize DB: " + String(err));
-    });
+};
+
+startServer();

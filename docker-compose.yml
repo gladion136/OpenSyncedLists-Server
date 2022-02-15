@@ -5,7 +5,7 @@ services:
         build: ./
         restart: always
         ports:
-            - "3300:3000"
+            - "3300:3300"
         links:
             - database
         networks:
